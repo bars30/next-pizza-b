@@ -263,6 +263,9 @@ const transporter = nodemailer.createTransport({
 });
 
 async function createPayement(details){
+    console.log('🦄🦄setails token🦄',details.cartToken);
+    console.log('🦄🦄setails🦄',details);
+
     console.log(details.amount);
     
     const { data } = await axios.post(
@@ -276,6 +279,7 @@ async function createPayement(details){
             description: details.description,
             metadata: {
                 order_id: details.orderId,
+                token: details.cartToken
             },
             confirmation: {
                 type: 'redirect',
@@ -426,6 +430,7 @@ router.post('/create/order', async (req, res) => {
     amount: totalAmount,
     orderId: cartId,
     description: 'Оплата заказа #' + cartId,
+    cartToken: cartToken
   })
 
   if (!paymentData) {
