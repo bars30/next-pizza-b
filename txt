@@ -1,0 +1,139 @@
+SELECT 
+    c.id AS category_id, 
+    c.name AS category_name,
+    json_agg(
+        json_build_object(
+            'id', p.id,
+            'name', p.name,
+            'imageUrl', p."imageUrl", 
+            'ingredients', (
+                SELECT json_agg(i)
+                FROM "Ingredient" i
+                WHERE i."productId" = p.id
+            ),
+            'items', (
+                SELECT json_agg(it)
+                FROM "ProductItem" it
+                WHERE it."productId" = p.id  -- правильное имя поля
+            )
+        )
+    ) AS products
+FROM "Category" c
+LEFT JOIN "Product" p ON p."categoryId" = c.id
+GROUP BY c.id; 
+
+
+category_id
+category_name
+products
+1	Пиццы	[object Object]
+2	Завтрак	[object Object],[object Object]
+3	Закуски	[object Object],[object Object],[object Object],[object Object],[object Object]
+4	Коктейли	[object Object],[object Object],[object Object],[object Object]
+5	Напитки	[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]
+
+
+
+🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+
+
+SELECT 
+    c.id AS category_id, 
+    c.name AS category_name,
+    json_agg(
+        json_build_object(
+            'id', p.id,
+            'name', p.name,
+            'imageUrl', p."imageUrl", 
+            'ingredients', (
+                SELECT json_agg(i)
+                FROM "Ingredient" i
+                WHERE i."productId" = p.id
+            ),
+            'items', (
+                SELECT json_agg(it)
+                FROM "ProductItem" it
+                WHERE it."productId" = p.id
+            )
+        )
+    )::TEXT AS products -- Преобразуем JSON в текст
+FROM "Category" c
+LEFT JOIN "Product" p ON p."categoryId" = c.id
+GROUP BY c.id;
+
+
+category_id
+category_name
+products
+1	Пиццы	[{"id" : null, "name" : null, "imageUrl" : null, "ingredients" : null, "items" : null}]
+2	Завтрак	[{"id" : 2, "name" : "Омлет с пепперони", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EE94ECF33B0C46BA410DEC1B1DD6F8.webp", "ingredients" : null, "items" : null}, {"id" : 1, "name" : "Омлет с ветчиной и грибами", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EE7970321044479C1D1085457A36EB.webp", "ingredients" : null, "items" : null}]
+3	Закуски	[{"id" : 5, "name" : "Куриные наггетсы", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EE7D618B5C7EC29350069AE9532C6E.webp", "ingredients" : null, "items" : null}, {"id" : 6, "name" : "Картофель из печи с соусом 🌱", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EED646A9CD324C962C6BEA78124F19.webp", "ingredients" : null, "items" : null}, {"id" : 7, "name" : "Додстер", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EE796F96D11392A2F6DD73599921B9.webp", "ingredients" : null, "items" : null}, {"id" : 4, "name" : "Дэнвич ветчина и сыр", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EE796FF0059B799A17F57A9E64C725.webp", "ingredients" : null, "items" : null}, {"id" : 8, "name" : "Острый Додстер 🌶️🌶️", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EE796FD3B594068F7A752DF8161D04.webp", "ingredients" : null, "items" : null}]
+4	Коктейли	[{"id" : 9, "name" : "Банановый молочный коктейль", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EEE20B8772A72A9B60CFB20012C185.webp", "ingredients" : null, "items" : null}, {"id" : 10, "name" : "Карамельное яблоко молочный коктейль", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EE79702E2A22E693D96133906FB1B8.webp", "ingredients" : null, "items" : null}, {"id" : 11, "name" : "Молочный коктейль с печеньем Орео", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EE796FA1F50F8F8111A399E4C1A1E3.webp", "ingredients" : null, "items" : null}, {"id" : 12, "name" : "Классический молочный коктейль 👶", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EE796F93FB126693F96CB1D3E403FB.webp", "ingredients" : null, "items" : null}]
+5	Напитки	[{"id" : 17, "name" : "Кофе Латте", "imageUrl" : "https://media.dod"}]
+
+🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+
+
+SELECT 
+    c.id AS category_id, 
+    c.name AS category_name,
+    json_agg(
+        json_build_object(
+            'id', p.id,
+            'name', p.name,
+            'imageUrl', p."imageUrl", 
+            'ingredients', p.ingredients, -- Теперь берем ингредиенты напрямую из поля в Product
+            'items', (
+                SELECT json_agg(it)
+                FROM "ProductItem" it
+                WHERE it."productId" = p.id
+            )
+        )
+    )::TEXT AS products -- Преобразуем JSON в текст
+FROM "Category" c
+LEFT JOIN "Product" p ON p."categoryId" = c.id
+GROUP BY c.id;
+
+category_id
+category_name
+products
+1	Пиццы	[{"id" : 19, "name" : "Чоризо фреш", "imageUrl" : "https://media.dodostatic.com/image/r:584x584/11EF866913F5B8298A23EAEAAF50E556.avif", "ingredients" : [27], "items" : null}, {"id" : 18, "name" : "Креветки со сладким чили", "imageUrl" : "https://media.dodostatic.com/image/r:584x584/11EF86E9C26CFCD393EF4084A8CEF7B9.avif", "ingredients" : [25,26], "items" : null}, {"id" : 20, "name" : "Капричоза", "imageUrl" : "https://media.dodostatic.com/image/r:584x584/11EECB6A7A0A9CD1B64A1C5C22F4298F.avif", "ingredients" : [28], "items" : null}]
+2	Завтрак	[{"id" : 1, "name" : "Омлет с ветчиной и грибами", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EE7970321044479C1D1085457A36EB.webp", "ingredients" : [1,2,3], "items" : null}, {"id" : 2, "name" : "Омлет с пепперони", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EE94ECF33B0C46BA410DEC1B1DD6F8.webp", "ingredients" : [2,4], "items" : null}]
+3	Закуски	[{"id" : 8, "name" : "Острый Додстер 🌶️🌶️", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EE796FD3B594068F7A752DF8161D04.webp", "ingredients" : [13,14], "items" : null}, {"id" : 5, "name" : "Куриные наггетсы", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EE7D618B5C7EC29350069AE9532C6E.webp", "ingredients" : [8,9], "items" : null}, {"id" : 4, "name" : "Дэнвич ветчина и сыр", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EE796FF0059B799A17F57A9E64C725.webp", "ingredients" : [6,7], "items" : null}, {"id" : 6, "name" : "Картофель из печи с соусом 🌱", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EED646A9CD324C962C6BEA78124F19.webp", "ingredients" : [10], "items" : null}, {"id" : 7, "name" : "Додстер", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EE796F96D11392A2F6DD73599921B9.webp", "ingredients" : [11,12], "items" : null}]
+4	Коктейли	[{"id" : 10, "name" : "Карамельное яблоко молочный коктейль", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EE79702E2A22E693D96133906FB1B8.webp", "ingredients" : [16,17], "items" : null}, {"id" : 11, "name" : "Молочный коктейль с печеньем Орео", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EE796FA1F50F8F8111A399E4C1A1E3.webp", "ingredients" : [18], "items" : null}, {"id" : 9, "name" : "Банановый молочный коктейль", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EEE20B8772A72A9B60CFB20012C185.webp", "ingredients" : [15], "items" : null}, {"id" : 12, "name" : "Классический молочный коктейль 👶", "imageUrl" : "https://media.dodostatic.net/image/r:292x292/11EE796F93FB126693F96CB1D3E403FB.webp", "ingredients" : [19], "items" : null}]
+5	Напитки	[{"id" : 3, "name" : "Кофе Латте", "imageUrl" : "https://media.dodos}]
+
+🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+// получени ингредентов для этого товара
+
+SELECT i.*
+FROM "Product" p
+JOIN "Ingredient" i ON i.id = ANY(p.ingredients)
+WHERE p.id = 1;
+ 
+
+ id
+name
+price
+imageUrl
+createdAt
+updatedAt
+1	Сырный бортик	179	https://cdn.dodostatic.net/static/Img/Ingredients/99f5cb91225b4875bd06a26d2e842106.png	Sat Dec 14 2024 15:45:19 GMT+0400 (Armenia Standard Time)	Sat Dec 14 2024 15:45:19 GMT+0400 (Armenia Standard Time)
+2	Сливочная моцарелла	79	https://cdn.dodostatic.net/static/Img/Ingredients/cdea869ef287426386ed634e6099a5ba.png	Sat Dec 14 2024 15:45:19 GMT+0400 (Armenia Standard Time)	Sat Dec 14 2024 15:45:19 GMT+0400 (Armenia Standard Time)
+3	Сыры чеддер и пармезан	79	https://cdn.dodostatic.net/static/Img/Ingredients/000D3A22FA54A81411E9AFA69C1FE796	Sat Dec 14 2024 15:45:19 GMT+0400 (Armenia Standard Time)	Sat Dec 14 2024 15:45:19 GMT+0400 (Armenia Standard Time)
+
+
+✅✅✅✅✅✅✅✅✅✅✅
+
+
+
+
+
+
+
+
+
+
+
+
