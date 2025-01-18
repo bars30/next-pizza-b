@@ -46,11 +46,12 @@ function OrderSuccessTemplate({ orderId, items }) {
 // Обработчик POST-запроса
 router.post('/payment-callback', async (req, res) => {
   console.log('🧪🪇🧪🪇🧪🪇🧪🪇🧪🪇🧪🪇');
+    console.log("REQ",req)
   try {
    const body = req.body;
    console.log('🧪🪇🧪🪇🧪🪇🧪🪇🧪🪇🧪🪇');
    console.log(body);
-   
+   console.log("body.object.metadata.token🦄🦄🧪", body.object.metadata.token); 
 
    // Извлекаем заказ по ID
    const result = await client.query('SELECT * FROM "Order" WHERE token = $1', [
