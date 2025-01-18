@@ -53,24 +53,33 @@ router.post('/payment-callback', async (req, res) => {
    
 
    // Извлекаем заказ по ID
-   const result = await pool.query('SELECT * FROM "Order" WHERE id = $1', [
-     Number(body.object.metadata.order_id),
+   const result = await client.query('SELECT * FROM "Order" WHERE token = $1', [
+     Number(body.object.metadata.token),
    ]);
    const order = result.rows[0];
+   console.log("🥶order", order);
+   
 
    if (!order) {
+    console.log("Order not found");
+    
      return res.status(404).json({ error: 'Order not found' });
+
    }
 
    const isSucceeded = body.object.status === 'succeeded';
+   console.log("🍉🍉", isSucceeded);
+   
 
-   // Обновляем статус заказа
-   await pool.query('UPDATE "Order" SET status = $1 WHERE id = $2', [
-     isSucceeded ? 'SUCCEEDED' : 'CANCELLED',
+   console.log('Updating order status...');
+   await client.query('UPDATE "Order" SET status = $1 WHERE id = $2', [
+     isSucceeded ? 'succeeded' : 'cancelled',
      order.id,
    ]);
+   console.log(`Order ID ${order.id} status updated to ${isSucceeded ? 'succeeded' : 'cancelled'}`);
+   
 
-   const items = JSON.parse(order.items);
+   const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
 
    if (isSucceeded) {
      // Отправляем письмо
