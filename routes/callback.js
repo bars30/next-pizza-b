@@ -46,7 +46,7 @@ function OrderSuccessTemplate({ orderId, items }) {
 // Обработчик POST-запроса
 router.post('/payment-callback', async (req, res) => {
   console.log('🧪🪇🧪🪇🧪🪇🧪🪇🧪🪇🧪🪇');
-    console.log("REQ",req)
+    // console.log("REQ",req)
   try {
    const body = req.body;
    console.log('🧪🪇🧪🪇🧪🪇🧪🪇🧪🪇🧪🪇');
@@ -66,6 +66,8 @@ router.post('/payment-callback', async (req, res) => {
     
      return res.status(404).json({ error: 'Order not found' });
 
+   } else {
+       console.log("NERVERS ELAV BAYC ORDER KA")
    }
 
    const isSucceeded = body.object.status === 'succeeded';
