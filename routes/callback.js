@@ -24,23 +24,29 @@ async function sendEmail(to, subject, html) {
 
 // Шаблон письма
 function OrderSuccessTemplate({ orderId, items }) {
- return `
-   <div>
-     <h1>Спасибо за покупку! 🎉</h1>
-     <p>Ваш заказ #${orderId} оплачен. Список товаров:</p>
-     <hr />
-     <ul>
-       ${items
-         .map(
-           (item) =>
-             `<li>${item.productItem.product.name} | ${item.productItem.price} ₽ x ${item.quantity} шт. = ${
-               item.productItem.price * item.quantity
-             } ₽</li>`,
-         )
-         .join('')}
-     </ul>
-   </div>
- `;
+  return `
+    <div>
+      <h1>Спасибо за покупку! 🎉</h1>
+      <p>Ваш заказ #${orderId} оплачен. Список товаров:</p>
+      <hr />
+      <ul>
+        ${items
+          .map(
+            (item) => {
+              // Проверяем, существуют ли нужные свойства
+              if (item.productItem && item.productItem.product) {
+                return `<li>${item.productItem.product.name} | ${item.productItem.price} ₽ x ${item.quantity} шт. = ${
+                  item.productItem.price * item.quantity
+                } ₽</li>`;
+              } else {
+                return `<li>Неизвестный товар</li>`; // Если данных нет
+              }
+            }
+          )
+          .join('')}
+      </ul>
+    </div>
+  `;
 }
 
 // Обработчик POST-запроса
@@ -59,6 +65,8 @@ router.post('/payment-callback', async (req, res) => {
    ]);
    const order = result.rows[0];
    console.log("🥶order", order);
+       console.log("🥶order  order.items", order.items);
+       console.log("🥶order order.items[0].product", order.items[0].product);
    
 
    if (!order) {
