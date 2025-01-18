@@ -55,7 +55,7 @@ router.post('/payment-callback', async (req, res) => {
 
    // Извлекаем заказ по ID
    const result = await client.query('SELECT * FROM "Order" WHERE token = $1', [
-     Number(body.object.metadata.token),
+     body.object.metadata.token,
    ]);
    const order = result.rows[0];
    console.log("🥶order", order);
