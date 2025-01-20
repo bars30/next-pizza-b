@@ -57,6 +57,8 @@ router.post('/payment-callback', async (req, res) => {
    const body = req.body;
    console.log('🧪🪇🧪🪇🧪🪇🧪🪇🧪🪇🧪🪇');
    console.log(body);
+         console.log("🍉🍉🍉" , body.object);
+   console.log("🍉🍉🍉" , body.object.id);
    console.log("body.object.metadata.token🦄🦄🧪", body.object.metadata.token); 
 
    // Извлекаем заказ по ID
