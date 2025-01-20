@@ -24,6 +24,7 @@ async function sendEmail(to, subject, html) {
 
 // Шаблон письма
 function OrderSuccessTemplate({ orderId, items }) {
+    console.log("🥎🎿🥎", items);
   return `
     <div>
       <h1>Спасибо за покупку! 🎉</h1>
