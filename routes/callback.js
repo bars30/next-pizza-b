@@ -49,68 +49,67 @@ function OrderSuccessTemplate({ orderId, items }) {
   `;
 }
 
+// Обработчик POST-запроса
 router.post('/payment-callback', async (req, res) => {
   console.log('🧪🪇🧪🪇🧪🪇🧪🪇🧪🪇🧪🪇');
+    // console.log("REQ",req)
   try {
-    const body = req.body;
-    console.log('🧪🪇🧪🪇🧪🪇🧪🪇🧪🪇🧪🪇');
-    console.log(body);
-    console.log("🍉🍉🍉", body.object);
-    console.log("🍉🍉🍉", body.object.id);
-    console.log("body.object.metadata.token🦄🦄🧪", body.object.metadata.token);
+   const body = req.body;
+   console.log('🧪🪇🧪🪇🧪🪇🧪🪇🧪🪇🧪🪇');
+   console.log(body);
+         console.log("🍉🍉🍉" , body.object);
+   console.log("🍉🍉🍉" , body.object.id);
+   console.log("body.object.metadata.token🦄🦄🧪", body.object.metadata.token); 
 
-    // Извлекаем заказ по token
-    const result = await client.query('SELECT * FROM "Order" WHERE token = $1', [
-      body.object.metadata.token,
-    ]);
-    const order = result.rows[0];
-    console.log("🥶order", order);
-    console.log("🥶order  order.items", order.items);
-    console.log("🥶order order.items[0].product", order.items[0].product);
+   // Извлекаем заказ по ID
+   const result = await client.query('SELECT * FROM "Order" WHERE token = $1', [
+     body.object.metadata.token,
+   ]);
+   const order = result.rows[0];
+   console.log("🥶order", order);
+       console.log("🥶order  order.items", order.items);
+       console.log("🥶order order.items[0].product", order.items[0].product);
+   
 
-    if (!order) {
-      console.log("Order not found");
-      return res.status(404).json({ error: 'Order not found' });
-    } else {
-      console.log("Order found");
-    }
+   if (!order) {
+    console.log("Order not found");
+    
+     return res.status(404).json({ error: 'Order not found' });
 
-    const isSucceeded = body.object.status === 'succeeded';
-    console.log("🍉🍉", isSucceeded);
+   } else {
+       console.log("NERVERS ELAV BAYC ORDER KA")
+   }
 
-    console.log('Updating order status...');
-    await client.query('UPDATE "Order" SET status = $1 WHERE id = $2', [
-      isSucceeded ? 'succeeded' : 'cancelled',
-      order.id,
-    ]);
-    console.log(`Order ID ${order.id} status updated to ${isSucceeded ? 'succeeded' : 'cancelled'}`);
+   const isSucceeded = body.object.status === 'succeeded';
+   console.log("🍉🍉", isSucceeded);
+   
 
-    // Обновляем поле paymentId с body.object.id
-    await client.query('UPDATE "Order" SET "paymentId" = $1 WHERE id = $2', [
-      body.object.id,  // Устанавливаем значение paymentId
-      order.id,         // Указываем id заказа, который нужно обновить
-    ]);
-    console.log(`Order ID ${order.id} paymentId updated to ${body.object.id}`);
+   console.log('Updating order status...');
+   await client.query('UPDATE "Order" SET status = $1 WHERE id = $2', [
+     isSucceeded ? 'succeeded' : 'cancelled',
+     order.id,
+   ]);
+   console.log(`Order ID ${order.id} status updated to ${isSucceeded ? 'succeeded' : 'cancelled'}`);
+   
 
-    const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
+   const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
 
-    if (isSucceeded) {
-      // Отправляем письмо
-      await sendEmail(
-        order.email,
-        'Next Pizza / Ваш заказ успешно оформлен 🎉',
-        OrderSuccessTemplate({ orderId: order.id, items }),
-      );
-    } else {
-      // Письмо о неуспешной оплате (можно добавить аналогично)
-    }
+   if (isSucceeded) {
+     // Отправляем письмо
+     await sendEmail(
+       order.email,
+       'Next Pizza / Ваш заказ успешно оформлен 🎉',
+       OrderSuccessTemplate({ orderId: order.id, items }),
+     );
+   } else {
+     // Письмо о неуспешной оплате (можно добавить аналогично)
+   }
 
-    res.status(200).json({ message: 'Callback processed successfully' });
-  } catch (error) {
-    console.error('[Checkout Callback] Error:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
+   res.status(200).json({ message: 'Callback processed successfully' });
+ } catch (error) {
+   console.error('[Checkout Callback] Error:', error);
+   res.status(500).json({ error: 'Server error' });
+ }
 });
-
 
 module.exports = router;
