@@ -82,7 +82,14 @@ router.post('/payment-callback', async (req, res) => {
 
    const isSucceeded = body.object.status === 'succeeded';
    console.log("🍉🍉", isSucceeded);
-   
+
+ console.log('Updating order status...');
+    await client.query('UPDATE "Order" SET status = $1 WHERE id = $2', [
+      isSucceeded ? 'succeeded' : 'cancelled',
+      order.id,
+    ]);
+    console.log(`Order ID ${order.id} status updated to ${isSucceeded ? 'succeeded' : 'cancelled'}`);
+      
 
    console.log('Updating order status...');
    await client.query('UPDATE "Order" SET status = $1 WHERE id = $2', [
