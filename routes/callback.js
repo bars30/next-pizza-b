@@ -22,9 +22,9 @@ async function sendEmail(to, subject, html) {
  });
 }
 
-// Шаблон письма
 function OrderSuccessTemplate({ orderId, items }) {
-    console.log("🥎🎿🥎", items);
+  console.log("🥎🎿🥎", items);
+  
   return `
     <div>
       <h1>Спасибо за покупку! 🎉</h1>
@@ -35,9 +35,9 @@ function OrderSuccessTemplate({ orderId, items }) {
           .map(
             (item) => {
               // Проверяем, существуют ли нужные свойства
-              if (item.productItem && item.productItem.product) {
-                return `<li>${item.productItem.product.name} | ${item.productItem.price} ₽ x ${item.quantity} шт. = ${
-                  item.productItem.price * item.quantity
+              if (item.product) {
+                return `<li>${item.product.name} | ${item.product.price} ₽ x ${item.quantity} шт. = ${
+                  item.product.price * item.quantity
                 } ₽</li>`;
               } else {
                 return `<li>Неизвестный товар</li>`; // Если данных нет
