@@ -91,12 +91,11 @@ router.post('/payment-callback', async (req, res) => {
     console.log(`Order ID ${order.id} status updated to ${isSucceeded ? 'succeeded' : 'cancelled'}`);
       
 
-   console.log('Updating order status...');
-   await client.query('UPDATE "Order" SET status = $1 WHERE id = $2', [
-     isSucceeded ? 'succeeded' : 'cancelled',
-     order.id,
-   ]);
-   console.log(`Order ID ${order.id} status updated to ${isSucceeded ? 'succeeded' : 'cancelled'}`);
+   await client.query('UPDATE "Order" SET "paymentId" = $1 WHERE id = $2', [
+      body.object.id,  // Устанавливаем значение paymentId
+      order.id,         // Указываем id заказа, который нужно обновить
+    ]);
+    console.log(`Order ID ${order.id} paymentId updated to ${body.object.id}`);
    
 
    const items = typeof order.items === 'string' ? JSON.parse(order.items) : order.items;
